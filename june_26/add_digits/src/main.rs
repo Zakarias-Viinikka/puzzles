@@ -28,7 +28,22 @@
 
 */
 fn main() {
-    let number: u16 = 2147483648 - 1;
+    //let number: u32 = 2147483648 - 1;
+    let number = 2345237;
+    println!("{}", add_digits(number));
 }
 
-fn add_digits(number: u16) -> u16 {}
+fn add_digits(num: i32) -> i32 {
+    let mut num = num;
+    loop {
+        let mut new_number = 0;
+        for num_sliced in num.clone().to_string().chars() {
+            new_number += num_sliced.to_digit(10).unwrap() as i32;
+        }
+        if new_number < 10 {
+            return new_number;
+        } else {
+            num = new_number;
+        }
+    }
+}
