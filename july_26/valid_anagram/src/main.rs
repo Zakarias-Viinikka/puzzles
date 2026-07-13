@@ -8,10 +8,6 @@ impl Solution {
     }
 }
 
-fn main() {
-    println!("Hello, world!");
-}
-
 fn fill_hash_map(letters: String) -> HashMap<char, u8> {
     let mut hash_map = HashMap::new();
     for letter in letters.chars().into_iter() {
@@ -22,4 +18,8 @@ fn fill_hash_map(letters: String) -> HashMap<char, u8> {
         }
     }
     hash_map
+}
+
+fn main() {
+    println!("Hello, world!");
 }
