@@ -40,79 +40,112 @@ pub fn product_except_self(nums: Vec<i32>) -> Vec<i32> {
 }
 
 fn create_prefix_and_suffix_precalc(nums: Vec<i32>) -> (Vec<i32>, Vec<i32>) {
-    let mut pre_vec: Vec<i32> = Vec::new();
-    let mut suf_vec: Vec<i32> = Vec::new();
-    for i in 0..nums.len() {
-        pre_vec.push(get_prod_right(&nums, i as i32));
-        suf_vec.push(get_prod_left(&nums, i as i32))
-    }
-    (pre_vec, suf_vec)
+    let left_side = init_left_side(&nums);
+    let right_side = init_right_side(&nums);
+
+    (left_side, right_side)
 }
 
-fn finish(pre_vec: Vec<i32>, suf_vec: Vec<i32>) -> Vec<i32> {
+fn finish(left_vec: Vec<i32>, right_vec: Vec<i32>) -> Vec<i32> {
     let mut x = Vec::new();
-    for i in 0..pre_vec.len() {
-        x.push(pre_vec[i] * suf_vec[i])
+    println!("precalcs from the left: {:?}", left_vec);
+    println!("precalcs from the right: {:?}", right_vec);
+    for i in 0..left_vec.len() {
+        println!("i: {i}");
+        x.push(left_vec[i] + right_vec[i])
     }
     x
 }
 
-fn get_prod_right(nums: &Vec<i32>, i: i32) -> i32 {
-    let i = i as usize;
-    nums.iter()
-        .skip(i + 1)
-        .fold(1, |accumulative_result, num| accumulative_result * num)
+fn init_left_side(n: &Vec<i32>) -> Vec<i32> {
+    let mut left_side: Vec<i32> = vec![0; n.len()];
+    for i in 0..n.len() {
+        /*println!("i: {i}");
+        println!("n[i]: {}", n[i]);*/
+        let new_prod;
+        if i == 0 {
+            //println!("inserting 0 at position 0 in left_side");
+            left_side[i] = 0;
+            //println!("leftside insert: 0");
+        } else if i == 1 {
+            new_prod = 1 * n[i - 1];
+            left_side[1] = new_prod;
+            //println!("leftside insert: {}", new_prod);
+        } else {
+            //println!("inserting at: {i}");
+            //println!("{} * {}", { left_side[i - 1] }, { n[i - 1] });
+            new_prod = left_side[i - 1] * n[i - 1];
+            left_side[i] = new_prod;
+            //println!("leftside insert: {}", new_prod);
+        }
+    }
+    //println!("---");
+
+    //println!("final left_side: {:?}", left_side.clone());
+
+    left_side
 }
 
-fn get_prod_left(nums: &Vec<i32>, i: i32) -> i32 {
-    //println!("{:?}, {}", nums, i);
-    let i = i as usize;
-    if i > 0 {
-        return nums
-            .iter()
-            .rev()
-            .skip(nums.len() - i)
-            .fold(1, |accumulative_result, num| {
-                //println!("{accumulative_result}, {num}");
-                accumulative_result * num
-            });
-    } else {
-        return 1;
+fn init_right_side(n: &Vec<i32>) -> Vec<i32> {
+    let mut right_side: Vec<i32> = vec![0; n.len()];
+    let l = n.len();
+    for i in (0..n.len()).rev() {
+        if i == l - 1 {
+            right_side[l - 1] = 0;
+        } else if i == l - 2 {
+            right_side[l - 2] = n[l - 1];
+        } else {
+            //when i == 2
+            //            here
+            //right_side [____,number we care,___]
+            //nums       [____,number we care,___]
+            right_side[i] = right_side[i + 1] * n[i + 1];
+            println!("{} * {}", right_side[i + 1], n[i + 1]);
+        }
     }
+    right_side
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
+    /*#[test]
     fn x() {
         let list = vec![1, 2, 3, 10];
+        println!("list being tested: {:?}", list);
         let result = product_except_self(list);
         let expected_result = vec![60, 30, 20, 6];
         assert_eq!(result, expected_result)
-    }
+    }*/
 
+    /*#[test]
     fn x2() {
         let list = vec![1, 0, 3, 10];
         let result = product_except_self(list);
         let expected_result = vec![0, 30, 0, 0];
         assert_eq!(result, expected_result)
+    }*/
+
+    #[test]
+    fn test_left_side() {
+        let nums = vec![100, 200, 2, 3, 4];
+
+        let result = init_left_side(&nums);
+        let expected_result = vec![0, 100, 20000, 40000, 120000];
+
+        assert_eq!(result, expected_result);
     }
 
     #[test]
-    fn prod_right_logic() {
+    fn test_right_side() {
         let nums = vec![100, 200, 2, 3, 4];
-        let i = 1;
 
-        let result = get_prod_right(&nums, i);
-        let expected_result = 24;
-        assert_eq!(result, expected_result);
+        let result = init_right_side(&nums);
+        let expected_result = vec![4800, 24, 12, 4, 0];
 
-        let i = 0;
-
-        let result = get_prod_right(&nums, i);
-        let expected_result = 4800;
+        println!("expected: {:?}", expected_result.clone());
+        println!("result: {:?}", result.clone());
         assert_eq!(result, expected_result);
     }
 
@@ -149,31 +182,4 @@ mod tests {
         println!("{:?}", test2.next());
         assert_eq!(1, 2)
     }*/
-
-    #[test]
-    fn prod_left_logic() {
-        let nums = vec![100, 200, 2, 3, 4];
-        let i = 1;
-
-        let result = get_prod_left(&nums, i);
-        let expected_result = 100;
-        assert_eq!(result, expected_result);
-        println!("left logic passed first test");
-
-        /*
-        let i = 2;
-
-        let result = get_prod_left(&nums, i);
-        let expected_result = 20000;
-        assert_eq!(result, expected_result);
-        println!("left logic passed second test");
-
-        let i = 0;
-
-        let result = get_prod_left(&nums, i);
-        let expected_result = 0;
-        assert_eq!(result, expected_result);
-        println!("left logic passed third test");
-        */
-    }
 }
